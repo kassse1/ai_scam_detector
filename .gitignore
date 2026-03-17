@@ -47,3 +47,13 @@ node_modules/
 
 # dotenv
 .env
+
+# IDE
+.idea/
+.vscode/
+
+# Expo / React Native
+.expo/
+
+# JSONL (feedback data)
+*.jsonl
