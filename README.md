@@ -268,22 +268,22 @@ The app provides:
 
 <p align="center">
   <b>Scam Detection Result</b><br/>
-  <img src="docs/screenshots/scam.png" alt="Scam Detection Result" width="700"/>
+  <img src="docs/screenshots/scam.png" alt="Scam Detection Result" width="1000"/>
 </p>
 
 <p align="center">
   <b>Safe Message Result</b><br/>
-  <img src="docs/screenshots/safe.png" alt="Safe Message Result" width="700"/>
+  <img src="docs/screenshots/safe.png" alt="Safe Message Result" width="1000"/>
 </p>
 
 <p align="center">
   <b>History</b><br/>
-  <img src="docs/screenshots/history.png" alt="History" width="700"/>
+  <img src="docs/screenshots/history.png" alt="History" width="900"/>
 </p>
 
 <p align="center">
   <b>Statistics</b><br/>
-  <img src="docs/screenshots/statistic.png" alt="Statistics" width="700"/>
+  <img src="docs/screenshots/statistic.png" alt="Statistics" width="10000"/>
 </p>
 
 ## How to Run Backend
