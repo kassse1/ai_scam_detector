@@ -5,9 +5,54 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6a2df505-86b9-4623-af86-d5945c9ddbc5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/pyproj.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pyproj.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_detector.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/SMSSpamCollection" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/combine_datasets.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/train_ai_model.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/explain_predict.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/multilingual_predict.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/predict.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/predict_transformer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/retrain.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/app/(tabs)/_layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/app/(tabs)/explore.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/app/(tabs)/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/app/_layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/app/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/app/modal.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/android-icon-background.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/android-icon-foreground.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/android-icon-monochrome.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/favicon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/partial-react-logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/react-logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/react-logo@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/react-logo@3x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/assets/images/splash-icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/external-link.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/haptic-tab.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/hello-wave.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/parallax-scroll-view.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/themed-text.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/themed-view.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/ui/collapsible.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/ui/icon-symbol.ios.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/components/ui/icon-symbol.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/constants/theme.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/eslint.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/hooks/use-color-scheme.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/hooks/use-color-scheme.web.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/hooks/use-theme-color.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scam-detector-mobile/scripts/reset-project.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_model.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_transformer.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +81,9 @@
     &quot;accountId&quot;: &quot;ff1386f9-18e0-4354-8ea7-01e95649001a&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/api.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -67,17 +115,23 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/zhazirabekuzakova/PycharmProjects/ai_scam_detector/data&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="D:\pyproj" />
       <recent name="D:\pyproj\data" />
     </key>
@@ -97,7 +151,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="RUN_TOOL" value="" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dsad.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -121,7 +174,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="RUN_TOOL" value="" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -140,11 +192,12 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PY-253.29346.142" />
-        <option value="bundled-python-sdk-f2b7a9f6281b-6e1f45a539f7-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.29346.142" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23339.19" />
+        <option value="bundled-python-sdk-0029f7779945-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23339.19" />
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="6a2df505-86b9-4623-af86-d5945c9ddbc5" name="Changes" comment="" />
@@ -159,6 +212,14 @@
       <workItem from="1773669570050" duration="1145000" />
       <workItem from="1773755226723" duration="114000" />
       <workItem from="1773760231582" duration="3830000" />
+      <workItem from="1774099907138" duration="11010000" />
+      <workItem from="1774116790320" duration="1000" />
+      <workItem from="1774116794878" duration="9000" />
+      <workItem from="1774116868187" duration="13435000" />
+      <workItem from="1777034876565" duration="2000" />
+      <workItem from="1777559959443" duration="599000" />
+      <workItem from="1777601534311" duration="3771000" />
+      <workItem from="1777828341463" duration="1579000" />
     </task>
     <servers />
   </component>

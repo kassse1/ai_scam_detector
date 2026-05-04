@@ -63,10 +63,10 @@ model = AutoModelForSequenceClassification.from_pretrained(
 training_args = TrainingArguments(
     output_dir="./results",
     learning_rate=2e-5,
-    per_device_train_batch_size=16,
+    per_device_train_batch_size=2,
     num_train_epochs=2,
+    save_strategy="no",
     logging_steps=100,
-    save_steps=500,
 )
 
 # =========================

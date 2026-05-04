@@ -1,3 +1,4 @@
+
 import joblib
 
 model = joblib.load("scam_model.pkl")

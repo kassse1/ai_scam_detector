@@ -19,16 +19,10 @@ sms["label"] = sms["label"].map({
 # 2 PHISHING EMAIL DATASET
 # =========================
 
-phishing = pd.read_csv("Phishing_Email.csv")
+phishing = pd.read_csv("phishing_email.csv")
 
 phishing = phishing.rename(columns={
-    "Email Text": "text",
-    "Email Type": "label"
-})
-
-phishing["label"] = phishing["label"].map({
-    "Safe Email": 0,
-    "Phishing Email": 1
+    "text_combined": "text"
 })
 
 phishing = phishing[["text", "label"]]

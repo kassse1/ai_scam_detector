@@ -1,18 +1,20 @@
 import { useState } from "react";
 import {
-  View,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
+  View,
 } from "react-native";
+
+const BASE_URL = "http://localhost:8000";
 
 export default function Home() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<any>(null);
 
   const analyze = async () => {
-    const res = await fetch("http://localhost:8000/analyze", {
+    const res = await fetch(`${BASE_URL}/analyze`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,7 +27,7 @@ export default function Home() {
   };
 
   const sendFeedback = async (label: string) => {
-    await fetch("http://localhost:8000/feedback", {
+    await fetch(`${BASE_URL}/feedback`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,6 +48,7 @@ export default function Home() {
       <TextInput
         style={styles.input}
         placeholder="Paste suspicious message..."
+        placeholderTextColor="#94a3b8"
         multiline
         value={text}
         onChangeText={setText}
@@ -57,19 +60,40 @@ export default function Home() {
 
       {result && (
         <View style={[styles.card, isScam ? styles.scam : styles.safe]}>
-
           <Text style={styles.resultTitle}>
             {isScam ? "🚨 SCAM DETECTED" : "✅ SAFE MESSAGE"}
           </Text>
 
-          <Text>AI Detection: {result.ai_prediction}</Text>
-          <Text>AI Confidence: {(result.ai_probability * 100).toFixed(1)}%</Text>
+          <Text style={styles.infoText}>
+            Risk Level: {result.risk_level}
+          </Text>
+
+          <Text style={styles.infoText}>
+            Scam Probability: {(result.scam_probability * 100).toFixed(1)}%
+          </Text>
+
+          <Text style={styles.infoText}>
+            Confidence: {(result.confidence * 100).toFixed(1)}%
+          </Text>
+
+          {result.important_keywords?.length > 0 && (
+            <Text style={styles.infoText}>
+              Important Words: {result.important_keywords.join(", ")}
+            </Text>
+          )}
+
+          <Text style={styles.infoText}>
+            AI Detection: {result.ai_prediction}
+          </Text>
+
+          <Text style={styles.infoText}>
+            AI Confidence: {(result.ai_probability * 100).toFixed(1)}%
+          </Text>
 
           <Text style={styles.model}>
             Model used: {result.model_used}
           </Text>
 
-          {/* FEEDBACK BUTTONS */}
           <Text style={styles.feedbackTitle}>Was this correct?</Text>
 
           <TouchableOpacity
@@ -87,7 +111,6 @@ export default function Home() {
           >
             <Text style={styles.btnText}>👎 No</Text>
           </TouchableOpacity>
-
         </View>
       )}
     </View>
@@ -126,10 +149,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 14,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
   },
 
   buttonText: {
@@ -159,8 +178,14 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
 
-  model: {
+  infoText: {
+    color: "#fff",
     marginTop: 6,
+    fontSize: 14,
+  },
+
+  model: {
+    marginTop: 8,
     fontStyle: "italic",
     color: "#cbd5f5",
   },
