@@ -262,17 +262,28 @@ The app provides:
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/home.png" alt="Mobile Main Screen" width="260"/>
-  <img src="docs/screenshots/scam.png" alt="Scam Detection Result" width="260"/>
+  <b>Mobile Main Screen</b><br/>
+  <img src="docs/screenshots/home.png" alt="Mobile Main Screen" width="700"/>
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/safe.png" alt="Safe Message Result" width="260"/>
-  <img src="docs/screenshots/history.png" alt="History" width="260"/>
+  <b>Scam Detection Result</b><br/>
+  <img src="docs/screenshots/scam.png" alt="Scam Detection Result" width="700"/>
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/statistic.png" alt="Statistics" width="260"/>
+  <b>Safe Message Result</b><br/>
+  <img src="docs/screenshots/safe.png" alt="Safe Message Result" width="700"/>
+</p>
+
+<p align="center">
+  <b>History</b><br/>
+  <img src="docs/screenshots/history.png" alt="History" width="700"/>
+</p>
+
+<p align="center">
+  <b>Statistics</b><br/>
+  <img src="docs/screenshots/statistic.png" alt="Statistics" width="700"/>
 </p>
 
 ## How to Run Backend
