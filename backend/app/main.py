@@ -20,6 +20,7 @@ SCAM_VECTORIZER_PATH = BASE_DIR / "ml" / "classical" / "vectorizer.pkl"
 TRANSFORMER_PATH = BASE_DIR / "ml" / "transformer" / "scam_transformer"
 
 FEEDBACK_PATH = BASE_DIR / "data" / "processed" / "feedback_data.jsonl"
+HISTORY_PATH = BASE_DIR / "data" / "processed" / "history.jsonl"
 RETRAIN_SCRIPT_PATH = BASE_DIR / "backend" / "app" / "services" / "retraining.py"
 
 
@@ -103,6 +104,63 @@ def get_risk_level(probability: float) -> str:
         return "MEDIUM"
     return "LOW"
 
+def detect_scam_category(text: str, scam_label: str) -> str:
+    if scam_label != "SCAM":
+        return "safe"
+
+    text_lower = text.lower()
+
+    categories = {
+        "phishing": [
+            "password", "login", "verify", "account", "blocked",
+            "пароль", "аккаунт", "подтвердите", "заблокирован",
+            "құпиясөз", "растаңыз", "бұғатталды"
+        ],
+        "financial_fraud": [
+            "bank", "card", "payment", "money", "transfer",
+            "банк", "карта", "деньги", "оплата", "перевод",
+            "ақша", "төлем", "аударым"
+        ],
+        "lottery_scam": [
+            "winner", "prize", "lottery", "won", "congratulations",
+            "выиграли", "приз", "лотерея", "поздравляем",
+            "ұтыс", "сыйлық"
+        ],
+        "social_engineering": [
+            "urgent", "immediately", "now", "limited", "click",
+            "срочно", "немедленно", "быстро", "перейдите",
+            "шұғыл", "қазір", "сілтеме"
+        ],
+        "fake_support": [
+            "support", "security team", "helpdesk", "operator",
+            "поддержка", "служба безопасности", "оператор",
+            "қолдау", "қауіпсіздік қызметі"
+        ],
+    }
+
+    scores = {}
+
+    for category, keywords in categories.items():
+        scores[category] = sum(1 for word in keywords if word in text_lower)
+
+    best_category = max(scores, key=scores.get)
+
+    if scores[best_category] == 0:
+        return "general_scam"
+
+    return best_category
+
+
+def save_history(record: dict):
+    try:
+        HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(HISTORY_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    except Exception as e:
+        print("History save error:", e)
+
 
 def explain_text(text: str, top_n: int = 5):
     """
@@ -185,17 +243,24 @@ def analyze(msg: Message):
 
     keywords = explain_text(text)
 
-    return {
+    scam_category = detect_scam_category(text, scam_label)
+
+    response = {
         "text": text,
         "scam_prediction": scam_label,
         "scam_probability": round(float(scam_prob), 3),
         "confidence": round(float(confidence), 3),
         "risk_level": get_risk_level(float(scam_prob)),
+        "scam_category": scam_category,
         "important_keywords": keywords,
         "ai_prediction": ai_label,
         "ai_probability": round(ai_prob, 3),
         "model_used": source
     }
+
+    save_history(response)
+
+    return response
 
 
 @app.post("/feedback")
@@ -222,4 +287,76 @@ def save_feedback(fb: Feedback):
     return {
         "status": "saved",
         "saved_feedback": data
+    }
+
+@app.get("/history")
+def get_history():
+    if not HISTORY_PATH.exists():
+        return {
+            "history": []
+        }
+
+    records = []
+
+    with open(HISTORY_PATH, "r", encoding="utf-8") as f:
+        for line in f:
+            try:
+                records.append(json.loads(line))
+            except Exception:
+                pass
+
+    return {
+        "history": records[-20:][::-1]
+    }
+
+
+@app.get("/stats")
+def get_stats():
+    if not HISTORY_PATH.exists():
+        return {
+            "total_checks": 0,
+            "scam_count": 0,
+            "safe_count": 0,
+            "high_risk_count": 0,
+            "categories": {},
+            "top_keywords": []
+        }
+
+    records = []
+
+    with open(HISTORY_PATH, "r", encoding="utf-8") as f:
+        for line in f:
+            try:
+                records.append(json.loads(line))
+            except Exception:
+                pass
+
+    total = len(records)
+    scam_count = sum(1 for r in records if r.get("scam_prediction") == "SCAM")
+    safe_count = sum(1 for r in records if r.get("scam_prediction") == "SAFE")
+    high_risk_count = sum(1 for r in records if r.get("risk_level") == "HIGH")
+
+    categories = {}
+    keywords = {}
+
+    for r in records:
+        category = r.get("scam_category", "unknown")
+        categories[category] = categories.get(category, 0) + 1
+
+        for word in r.get("important_keywords", []):
+            keywords[word] = keywords.get(word, 0) + 1
+
+    top_keywords = sorted(
+        keywords.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )[:10]
+
+    return {
+        "total_checks": total,
+        "scam_count": scam_count,
+        "safe_count": safe_count,
+        "high_risk_count": high_risk_count,
+        "categories": categories,
+        "top_keywords": top_keywords
     }

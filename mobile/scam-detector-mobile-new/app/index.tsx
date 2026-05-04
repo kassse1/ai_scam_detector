@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,18 +14,38 @@ import {
 const BASE_URL = "http://localhost:8000";
 
 const examples = [
-  "Your bank account has been blocked. Verify your password immediately.",
-  "Congratulations! You won $5000. Send your card details now.",
+  "Your bank account is blocked. Verify your password now.",
+  "Congratulations! You won $5000. Send your card details.",
   "Срочно подтвердите данные карты, иначе аккаунт будет заблокирован.",
+  "Сіздің картаңыз бұғатталды. Қазір құпиясөзді растаңыз.",
 ];
 
 export default function Home() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState("");
   const [error, setError] = useState("");
-  const [history, setHistory] = useState<any[]>([]);
+
+  const loadStatsAndHistory = async () => {
+    try {
+      const statsRes = await fetch(`${BASE_URL}/stats`);
+      const statsData = await statsRes.json();
+      setStats(statsData);
+
+      const historyRes = await fetch(`${BASE_URL}/history`);
+      const historyData = await historyRes.json();
+      setHistory(historyData.history || []);
+    } catch {
+      // backend may be offline before first analyze
+    }
+  };
+
+  useEffect(() => {
+    loadStatsAndHistory();
+  }, []);
 
   const analyze = async () => {
     if (!text.trim()) {
@@ -40,15 +60,23 @@ export default function Home() {
 
       const res = await fetch(`${BASE_URL}/analyze`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ text }),
       });
 
       const data = await res.json();
+
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
+
       setResult(data);
-      setHistory((prev) => [data, ...prev].slice(0, 3));
+      await loadStatsAndHistory();
     } catch {
-      setError("Cannot connect to backend.");
+      setError("Cannot connect to backend. Make sure FastAPI is running.");
     } finally {
       setLoading(false);
     }
@@ -58,7 +86,9 @@ export default function Home() {
     try {
       await fetch(`${BASE_URL}/feedback`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           text,
           correct_label: label,
@@ -72,6 +102,7 @@ export default function Home() {
   };
 
   const isScam = result?.scam_prediction === "SCAM";
+
   const probability = result?.scam_probability
     ? Math.round(result.scam_probability * 100)
     : 0;
@@ -85,9 +116,9 @@ export default function Home() {
 
   const riskBg =
     result?.risk_level === "HIGH"
-      ? "#450a0a"
+      ? "#451111"
       : result?.risk_level === "MEDIUM"
-      ? "#451a03"
+      ? "#422006"
       : "#052e16";
 
   return (
@@ -97,75 +128,111 @@ export default function Home() {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.hero}>
-          <View style={styles.glowOne} />
-          <View style={styles.glowTwo} />
+          <View style={styles.glowBlue} />
+          <View style={styles.glowPurple} />
 
-          <View style={styles.logoCircle}>
-            <Text style={styles.logo}>🛡️</Text>
+          <View style={styles.topRow}>
+            <View style={styles.logoBox}>
+              <Text style={styles.logo}>🛡️</Text>
+            </View>
+
+            <View style={styles.statusPill}>
+              <View style={styles.statusDot} />
+              <Text style={styles.statusText}>API Connected</Text>
+            </View>
           </View>
 
           <Text style={styles.title}>AI Scam Detector</Text>
           <Text style={styles.subtitle}>
-            Hybrid AI system for detecting fraud, phishing and suspicious
-            messages.
+            Hybrid AI mobile system for scam detection, explainable prediction,
+            multilingual testing and adaptive feedback.
           </Text>
 
           <View style={styles.heroStats}>
-            <View style={styles.heroStatBox}>
-              <Text style={styles.heroStatNumber}>ML</Text>
-              <Text style={styles.heroStatLabel}>Fast model</Text>
+            <View style={styles.heroStat}>
+              <Text style={styles.heroStatValue}>ML</Text>
+              <Text style={styles.heroStatLabel}>Fast</Text>
             </View>
-
-            <View style={styles.heroStatBox}>
-              <Text style={styles.heroStatNumber}>XLM-R</Text>
-              <Text style={styles.heroStatLabel}>Transformer</Text>
+            <View style={styles.heroStat}>
+              <Text style={styles.heroStatValue}>XLM-R</Text>
+              <Text style={styles.heroStatLabel}>Deep</Text>
             </View>
-
-            <View style={styles.heroStatBox}>
-              <Text style={styles.heroStatNumber}>XAI</Text>
-              <Text style={styles.heroStatLabel}>Explainable</Text>
+            <View style={styles.heroStat}>
+              <Text style={styles.heroStatValue}>XAI</Text>
+              <Text style={styles.heroStatLabel}>Explain</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.panel}>
+        {stats && (
+          <View style={styles.statsPanel}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>System Dashboard</Text>
+              <Text style={styles.sectionBadge}>LIVE</Text>
+            </View>
+
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{stats.total_checks}</Text>
+                <Text style={styles.statLabel}>Total checks</Text>
+              </View>
+
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{stats.scam_count}</Text>
+                <Text style={styles.statLabel}>Scam</Text>
+              </View>
+
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{stats.safe_count}</Text>
+                <Text style={styles.statLabel}>Safe</Text>
+              </View>
+
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{stats.high_risk_count}</Text>
+                <Text style={styles.statLabel}>High risk</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        <View style={styles.inputPanel}>
           <Text style={styles.panelTitle}>Analyze message</Text>
           <Text style={styles.panelSubtitle}>
-            Paste a message and the system will estimate scam risk.
+            Paste a suspicious message or use a quick example.
           </Text>
 
           <TextInput
             style={styles.input}
-            placeholder="Paste suspicious message..."
+            placeholder="Paste suspicious message here..."
             placeholderTextColor="#64748b"
             multiline
             value={text}
             onChangeText={setText}
           />
 
-          <View style={styles.examples}>
-            <Text style={styles.examplesTitle}>Quick examples</Text>
+          <Text style={styles.quickTitle}>Quick examples</Text>
 
+          <View style={styles.examplesWrap}>
             {examples.map((item, index) => (
               <TouchableOpacity
                 key={index}
-                style={styles.exampleChip}
+                style={styles.exampleCard}
                 onPress={() => setText(item)}
               >
-                <Text style={styles.exampleText} numberOfLines={1}>
+                <Text style={styles.exampleText} numberOfLines={2}>
                   {item}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          <TouchableOpacity style={styles.mainButton} onPress={analyze}>
+          <TouchableOpacity style={styles.analyzeButton} onPress={analyze}>
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.mainButtonText}>Analyze with AI</Text>
+              <Text style={styles.analyzeButtonText}>Analyze with AI</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -174,7 +241,7 @@ export default function Home() {
           <View style={[styles.resultPanel, { backgroundColor: riskBg }]}>
             <View style={styles.resultTop}>
               <View>
-                <Text style={styles.resultLabel}>Detection result</Text>
+                <Text style={styles.resultSmallText}>Detection result</Text>
                 <Text style={styles.resultTitle}>
                   {isScam ? "Scam Detected" : "Safe Message"}
                 </Text>
@@ -185,20 +252,28 @@ export default function Home() {
               </View>
             </View>
 
-            <View style={styles.bigScoreCard}>
-              <Text style={styles.scoreNumber}>{probability}%</Text>
-              <Text style={styles.scoreLabel}>Scam Probability</Text>
+            <View style={styles.scoreCard}>
+              <View style={styles.scoreCircle}>
+                <Text style={styles.scoreValue}>{probability}%</Text>
+                <Text style={styles.scoreCaption}>Risk</Text>
+              </View>
 
-              <View style={styles.progressBackground}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      width: `${probability}%`,
-                      backgroundColor: riskColor,
-                    },
-                  ]}
-                />
+              <View style={styles.scoreInfo}>
+                <Text style={styles.scoreTitle}>Scam probability</Text>
+                <View style={styles.progressTrack}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      {
+                        width: `${probability}%`,
+                        backgroundColor: riskColor,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.scoreDescription}>
+                  Model confidence: {(result.confidence * 100).toFixed(1)}%
+                </Text>
               </View>
             </View>
 
@@ -209,10 +284,8 @@ export default function Home() {
               </View>
 
               <View style={styles.metricCard}>
-                <Text style={styles.metricLabel}>Confidence</Text>
-                <Text style={styles.metricValue}>
-                  {(result.confidence * 100).toFixed(1)}%
-                </Text>
+                <Text style={styles.metricLabel}>Category</Text>
+                <Text style={styles.metricValue}>{result.scam_category}</Text>
               </View>
 
               <View style={styles.metricCard}>
@@ -221,16 +294,16 @@ export default function Home() {
               </View>
 
               <View style={styles.metricCard}>
-                <Text style={styles.metricLabel}>Model</Text>
+                <Text style={styles.metricLabel}>Model used</Text>
                 <Text style={styles.metricValue}>{result.model_used}</Text>
               </View>
             </View>
 
             {result.important_keywords?.length > 0 && (
-              <View style={styles.xaiBox}>
-                <Text style={styles.xaiTitle}>Explainable AI Keywords</Text>
+              <View style={styles.xaiPanel}>
+                <Text style={styles.xaiTitle}>Explainable AI</Text>
                 <Text style={styles.xaiSubtitle}>
-                  Words that had the strongest influence on prediction.
+                  Important words used by the system during prediction.
                 </Text>
 
                 <View style={styles.keywordWrap}>
@@ -243,19 +316,19 @@ export default function Home() {
               </View>
             )}
 
-            <View style={styles.feedbackBox}>
-              <Text style={styles.feedbackTitle}>Was this prediction correct?</Text>
+            <View style={styles.feedbackPanel}>
+              <Text style={styles.feedbackTitle}>Was the prediction correct?</Text>
 
               <View style={styles.feedbackButtons}>
                 <TouchableOpacity
-                  style={styles.yesButton}
+                  style={styles.correctButton}
                   onPress={() => sendFeedback(result.scam_prediction)}
                 >
                   <Text style={styles.feedbackButtonText}>👍 Correct</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.noButton}
+                  style={styles.wrongButton}
                   onPress={() =>
                     sendFeedback(
                       result.scam_prediction === "SCAM" ? "SAFE" : "SCAM"
@@ -275,17 +348,29 @@ export default function Home() {
 
         {history.length > 0 && (
           <View style={styles.historyPanel}>
-            <Text style={styles.panelTitle}>Recent checks</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Recent Checks</Text>
+              <Text style={styles.historyCount}>{history.length}</Text>
+            </View>
 
-            {history.map((item, index) => (
+            {history.slice(0, 6).map((item, index) => (
               <View key={index} style={styles.historyItem}>
-                <Text style={styles.historyPrediction}>
-                  {item.scam_prediction === "SCAM" ? "🚨 SCAM" : "✅ SAFE"}
-                </Text>
-                <Text style={styles.historyText} numberOfLines={1}>
-                  {item.text}
-                </Text>
-                <Text style={styles.historyProb}>
+                <View style={styles.historyIcon}>
+                  <Text>
+                    {item.scam_prediction === "SCAM" ? "🚨" : "✅"}
+                  </Text>
+                </View>
+
+                <View style={styles.historyContent}>
+                  <Text style={styles.historyTitle}>
+                    {item.scam_prediction} · {item.risk_level}
+                  </Text>
+                  <Text style={styles.historyText} numberOfLines={1}>
+                    {item.text}
+                  </Text>
+                </View>
+
+                <Text style={styles.historyPercent}>
                   {Math.round(item.scam_probability * 100)}%
                 </Text>
               </View>
@@ -305,49 +390,54 @@ const styles = StyleSheet.create({
 
   container: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 44,
   },
 
   hero: {
-    marginTop: 40,
+    marginTop: 36,
     padding: 24,
-    borderRadius: 32,
+    borderRadius: 34,
     backgroundColor: "#0f172a",
-    overflow: "hidden",
     borderWidth: 1,
     borderColor: "#1e293b",
+    overflow: "hidden",
   },
 
-  glowOne: {
+  glowBlue: {
+    position: "absolute",
+    width: 220,
+    height: 220,
+    borderRadius: 120,
+    backgroundColor: "#2563eb",
+    opacity: 0.22,
+    right: -70,
+    top: -80,
+  },
+
+  glowPurple: {
     position: "absolute",
     width: 190,
     height: 190,
     borderRadius: 100,
-    backgroundColor: "#1d4ed8",
-    opacity: 0.25,
-    right: -60,
-    top: -70,
-  },
-
-  glowTwo: {
-    position: "absolute",
-    width: 180,
-    height: 180,
-    borderRadius: 100,
     backgroundColor: "#7c3aed",
     opacity: 0.18,
     left: -70,
-    bottom: -80,
+    bottom: -70,
   },
 
-  logoCircle: {
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  logoBox: {
     width: 72,
     height: 72,
-    borderRadius: 36,
-    backgroundColor: "#1e293b",
+    borderRadius: 24,
+    backgroundColor: "rgba(30,41,59,0.85)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 18,
     borderWidth: 1,
     borderColor: "#334155",
   },
@@ -356,19 +446,44 @@ const styles = StyleSheet.create({
     fontSize: 38,
   },
 
+  statusPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(22,163,74,0.16)",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(34,197,94,0.35)",
+  },
+
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#22c55e",
+    marginRight: 7,
+  },
+
+  statusText: {
+    color: "#bbf7d0",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+
   title: {
     color: "#f8fafc",
-    fontSize: 34,
+    fontSize: 36,
     fontWeight: "900",
-    letterSpacing: -0.5,
+    marginTop: 22,
+    letterSpacing: -0.8,
   },
 
   subtitle: {
     color: "#94a3b8",
     fontSize: 15,
-    lineHeight: 22,
+    lineHeight: 23,
     marginTop: 10,
-    maxWidth: 310,
   },
 
   heroStats: {
@@ -377,28 +492,28 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
 
-  heroStatBox: {
+  heroStat: {
     flex: 1,
-    backgroundColor: "rgba(30,41,59,0.85)",
-    borderRadius: 18,
-    padding: 12,
+    backgroundColor: "rgba(30,41,59,0.72)",
+    padding: 14,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: "#334155",
   },
 
-  heroStatNumber: {
+  heroStatValue: {
     color: "#f8fafc",
-    fontSize: 16,
     fontWeight: "900",
+    fontSize: 17,
   },
 
   heroStatLabel: {
     color: "#94a3b8",
-    fontSize: 11,
     marginTop: 4,
+    fontSize: 12,
   },
 
-  panel: {
+  statsPanel: {
     marginTop: 20,
     backgroundColor: "#0f172a",
     borderRadius: 28,
@@ -407,48 +522,107 @@ const styles = StyleSheet.create({
     borderColor: "#1e293b",
   },
 
-  panelTitle: {
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  sectionTitle: {
     color: "#f8fafc",
     fontSize: 22,
     fontWeight: "900",
   },
 
-  panelSubtitle: {
-    color: "#94a3b8",
-    fontSize: 14,
-    marginTop: 6,
-    marginBottom: 16,
+  sectionBadge: {
+    color: "#60a5fa",
+    fontSize: 12,
+    fontWeight: "900",
+    backgroundColor: "rgba(37,99,235,0.16)",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
   },
 
-  input: {
-    height: 150,
-    backgroundColor: "#020617",
-    borderRadius: 22,
+  statsGrid: {
+    marginTop: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+
+  statCard: {
+    width: "48%",
+    backgroundColor: "#1e293b",
+    borderRadius: 20,
     padding: 16,
-    color: "#f8fafc",
-    fontSize: 15,
-    textAlignVertical: "top",
     borderWidth: 1,
     borderColor: "#334155",
   },
 
-  examples: {
-    marginTop: 14,
+  statNumber: {
+    color: "#f8fafc",
+    fontSize: 28,
+    fontWeight: "900",
   },
 
-  examplesTitle: {
-    color: "#cbd5e1",
+  statLabel: {
+    color: "#94a3b8",
+    marginTop: 5,
     fontSize: 13,
-    fontWeight: "800",
-    marginBottom: 8,
+    fontWeight: "700",
   },
 
-  exampleChip: {
+  inputPanel: {
+    marginTop: 20,
+    backgroundColor: "#0f172a",
+    borderRadius: 30,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#1e293b",
+  },
+
+  panelTitle: {
+    color: "#f8fafc",
+    fontSize: 24,
+    fontWeight: "900",
+  },
+
+  panelSubtitle: {
+    color: "#94a3b8",
+    marginTop: 6,
+    marginBottom: 16,
+    fontSize: 14,
+  },
+
+  input: {
+    minHeight: 150,
+    backgroundColor: "#020617",
+    borderRadius: 24,
+    padding: 16,
+    color: "#f8fafc",
+    borderWidth: 1,
+    borderColor: "#334155",
+    fontSize: 15,
+    textAlignVertical: "top",
+  },
+
+  quickTitle: {
+    color: "#cbd5e1",
+    fontSize: 14,
+    fontWeight: "900",
+    marginTop: 16,
+    marginBottom: 10,
+  },
+
+  examplesWrap: {
+    gap: 8,
+  },
+
+  exampleCard: {
     backgroundColor: "#1e293b",
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginBottom: 8,
+    borderRadius: 18,
+    padding: 12,
     borderWidth: 1,
     borderColor: "#334155",
   },
@@ -456,34 +630,35 @@ const styles = StyleSheet.create({
   exampleText: {
     color: "#cbd5e1",
     fontSize: 13,
+    lineHeight: 18,
   },
 
-  mainButton: {
-    marginTop: 16,
+  analyzeButton: {
+    marginTop: 18,
     backgroundColor: "#2563eb",
+    borderRadius: 22,
     paddingVertical: 17,
-    borderRadius: 20,
     alignItems: "center",
   },
 
-  mainButtonText: {
+  analyzeButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "900",
   },
 
-  error: {
-    color: "#f87171",
-    marginTop: 10,
-    fontWeight: "700",
+  errorText: {
+    marginTop: 12,
+    color: "#fca5a5",
+    fontWeight: "800",
   },
 
   resultPanel: {
     marginTop: 20,
-    borderRadius: 32,
+    borderRadius: 34,
     padding: 22,
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: "rgba(148,163,184,0.25)",
   },
 
   resultTop: {
@@ -492,54 +667,79 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  resultLabel: {
+  resultSmallText: {
     color: "#cbd5e1",
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 
   resultTitle: {
     color: "#f8fafc",
-    fontSize: 28,
+    fontSize: 29,
     fontWeight: "900",
     marginTop: 4,
   },
 
   riskBadge: {
-    paddingVertical: 8,
     paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 999,
   },
 
   riskBadgeText: {
     color: "#fff",
-    fontSize: 12,
     fontWeight: "900",
+    fontSize: 12,
   },
 
-  bigScoreCard: {
+  scoreCard: {
     marginTop: 22,
-    backgroundColor: "rgba(15,23,42,0.72)",
-    borderRadius: 24,
+    flexDirection: "row",
+    gap: 16,
+    backgroundColor: "rgba(15,23,42,0.74)",
+    borderRadius: 26,
     padding: 18,
     borderWidth: 1,
     borderColor: "rgba(148,163,184,0.25)",
+    alignItems: "center",
   },
 
-  scoreNumber: {
+  scoreCircle: {
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: "#020617",
+    borderWidth: 8,
+    borderColor: "#334155",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  scoreValue: {
     color: "#f8fafc",
-    fontSize: 46,
+    fontSize: 25,
     fontWeight: "900",
   },
 
-  scoreLabel: {
-    color: "#cbd5e1",
-    fontWeight: "700",
-    marginBottom: 14,
+  scoreCaption: {
+    color: "#94a3b8",
+    fontSize: 12,
+    fontWeight: "800",
   },
 
-  progressBackground: {
-    height: 14,
+  scoreInfo: {
+    flex: 1,
+  },
+
+  scoreTitle: {
+    color: "#f8fafc",
+    fontSize: 16,
+    fontWeight: "900",
+    marginBottom: 10,
+  },
+
+  progressTrack: {
+    height: 13,
     backgroundColor: "#1e293b",
     borderRadius: 999,
     overflow: "hidden",
@@ -548,6 +748,13 @@ const styles = StyleSheet.create({
   progressFill: {
     height: "100%",
     borderRadius: 999,
+  },
+
+  scoreDescription: {
+    color: "#cbd5e1",
+    marginTop: 10,
+    fontSize: 13,
+    fontWeight: "700",
   },
 
   metricsGrid: {
@@ -559,9 +766,9 @@ const styles = StyleSheet.create({
 
   metricCard: {
     width: "48%",
-    backgroundColor: "rgba(15,23,42,0.72)",
-    borderRadius: 18,
-    padding: 14,
+    backgroundColor: "rgba(15,23,42,0.74)",
+    borderRadius: 20,
+    padding: 15,
     borderWidth: 1,
     borderColor: "rgba(148,163,184,0.22)",
   },
@@ -570,6 +777,7 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     fontSize: 12,
     marginBottom: 6,
+    fontWeight: "700",
   },
 
   metricValue: {
@@ -578,26 +786,27 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
 
-  xaiBox: {
+  xaiPanel: {
     marginTop: 16,
-    backgroundColor: "rgba(15,23,42,0.75)",
-    borderRadius: 22,
-    padding: 16,
+    backgroundColor: "rgba(15,23,42,0.78)",
+    borderRadius: 24,
+    padding: 17,
     borderWidth: 1,
     borderColor: "rgba(148,163,184,0.25)",
   },
 
   xaiTitle: {
     color: "#f8fafc",
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: "900",
   },
 
   xaiSubtitle: {
     color: "#94a3b8",
+    marginTop: 5,
+    marginBottom: 13,
     fontSize: 13,
-    marginTop: 4,
-    marginBottom: 12,
+    lineHeight: 18,
   },
 
   keywordWrap: {
@@ -608,19 +817,19 @@ const styles = StyleSheet.create({
 
   keywordChip: {
     backgroundColor: "#312e81",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
     borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
 
   keywordText: {
     color: "#ddd6fe",
-    fontWeight: "800",
     fontSize: 13,
+    fontWeight: "900",
   },
 
-  feedbackBox: {
-    marginTop: 16,
+  feedbackPanel: {
+    marginTop: 17,
   },
 
   feedbackTitle: {
@@ -635,7 +844,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
-  yesButton: {
+  correctButton: {
     flex: 1,
     backgroundColor: "#16a34a",
     paddingVertical: 15,
@@ -643,7 +852,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  noButton: {
+  wrongButton: {
     flex: 1,
     backgroundColor: "#dc2626",
     paddingVertical: 15,
@@ -658,44 +867,70 @@ const styles = StyleSheet.create({
   },
 
   feedbackMessage: {
+    marginTop: 12,
+    textAlign: "center",
     color: "#bfdbfe",
     fontWeight: "800",
-    textAlign: "center",
-    marginTop: 12,
   },
 
   historyPanel: {
     marginTop: 20,
     backgroundColor: "#0f172a",
-    borderRadius: 28,
+    borderRadius: 30,
     padding: 20,
     borderWidth: 1,
     borderColor: "#1e293b",
   },
 
+  historyCount: {
+    color: "#93c5fd",
+    backgroundColor: "rgba(37,99,235,0.16)",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    fontWeight: "900",
+  },
+
   historyItem: {
     marginTop: 12,
     backgroundColor: "#1e293b",
-    borderRadius: 16,
-    padding: 12,
+    borderRadius: 20,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: "#334155",
   },
 
-  historyPrediction: {
+  historyIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#020617",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+
+  historyContent: {
+    flex: 1,
+  },
+
+  historyTitle: {
     color: "#f8fafc",
     fontWeight: "900",
-    marginBottom: 4,
+    fontSize: 13,
   },
 
   historyText: {
     color: "#94a3b8",
-    fontSize: 13,
+    marginTop: 3,
+    fontSize: 12,
   },
 
-  historyProb: {
+  historyPercent: {
     color: "#60a5fa",
     fontWeight: "900",
-    marginTop: 6,
+    marginLeft: 10,
   },
 });
