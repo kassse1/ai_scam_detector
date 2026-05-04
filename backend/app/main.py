@@ -164,9 +164,32 @@ def save_history(record: dict):
 
 def explain_text(text: str, top_n: int = 5):
     """
-    Simple Explainable AI:
-    finds important words based on TF-IDF values in the input text.
+    Multilingual Explainable AI:
+    1. Uses TF-IDF feature importance if available.
+    2. Adds fallback keywords directly from input text.
+    3. Works better for English, Russian, Kazakh and other space-separated languages.
     """
+    import re
+
+    stopwords = {
+        # English
+        "the", "and", "you", "your", "for", "now", "this", "that", "with",
+        "can", "are", "is", "to", "of", "in", "on", "a", "an", "hi", "hello", "meet", "tomorrow", "can", "we", "will", "please", "be", "will",
+
+        # Russian
+        "и", "в", "во", "на", "не", "что", "это", "как", "или", "для",
+        "по", "из", "за", "от", "до", "же", "ли", "бы", "ты", "вы",
+        "он", "она", "они", "мы", "я", "мне", "тебе", "вам", "нас",
+        "можешь", "можно", "будет", "есть", "там", "тут", "уже",
+
+        # Kazakh
+        "мен", "және", "бұл", "сіз", "үшін", "ол", "біз", "бар", "жоқ",
+        "қалай", "маған", "саған", "оның", "осы", "сол"
+    }
+
+    keywords = []
+
+    # ===== 1. TF-IDF keywords =====
     try:
         vector = scam_vectorizer.transform([text])
         feature_names = scam_vectorizer.get_feature_names_out()
@@ -174,17 +197,37 @@ def explain_text(text: str, top_n: int = 5):
         row = vector.toarray()[0]
         top_indices = row.argsort()[-top_n:][::-1]
 
-        keywords = [
-            feature_names[i]
-            for i in top_indices
-            if row[i] > 0
-        ]
-
-        return keywords
+        for i in top_indices:
+            word = feature_names[i]
+            if row[i] > 0 and word not in keywords:
+                keywords.append(word)
 
     except Exception:
-        return []
+        pass
 
+    # ===== 2. Multilingual fallback tokens =====
+    text_lower = text.lower()
+
+    # Works for English, Russian, Kazakh letters and numbers
+    words = re.findall(
+        r"[a-zA-Zа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ0-9]+",
+        text_lower
+    )
+
+    for word in words:
+        if len(word) <= 2:
+            continue
+
+        if word in stopwords:
+            continue
+
+        if word.isdigit():
+            continue
+
+        if word not in keywords:
+            keywords.append(word)
+
+    return keywords[:top_n]
 
 # ===== ROUTES =====
 @app.get("/")
@@ -237,9 +280,26 @@ def analyze(msg: Message):
         scam_prob = confidence if scam_label == "SCAM" else 1 - confidence
         source = "transformer"
 
-    ai_result = ai_detector(text)[0]
-    ai_label = "AI GENERATED" if ai_result["label"] != "Real" else "HUMAN"
-    ai_prob = float(ai_result["score"])
+    word_count = len(text.split())
+
+    if word_count < 12:
+        raw_ai_label = "SKIPPED_SHORT_TEXT"
+        ai_label = "NOT ENOUGH TEXT"
+        ai_prob = 0.0
+    else:
+        ai_result = ai_detector(text)[0]
+
+        raw_ai_label = ai_result["label"]
+        ai_prob = float(ai_result["score"])
+
+        print("AI RESULT:", ai_result)
+
+        if raw_ai_label in ["Real", "real", "HUMAN", "LABEL_0"]:
+            ai_label = "HUMAN"
+        elif raw_ai_label in ["Fake", "fake", "AI", "AI GENERATED", "LABEL_1"]:
+            ai_label = "AI GENERATED"
+        else:
+            ai_label = raw_ai_label
 
     keywords = explain_text(text)
 
@@ -254,6 +314,7 @@ def analyze(msg: Message):
         "scam_category": scam_category,
         "important_keywords": keywords,
         "ai_prediction": ai_label,
+        "ai_raw_label": raw_ai_label,
         "ai_probability": round(ai_prob, 3),
         "model_used": source
     }

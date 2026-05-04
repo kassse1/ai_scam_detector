@@ -78,7 +78,7 @@ export function ResultCard({ result, feedbackSent, onFeedback }: Props) {
         </View>
 
         <View style={styles.metricCard}>
-          <Text style={styles.metricLabel}>AI Text</Text>
+          <Text style={styles.metricLabel}>Generated Check</Text>
           <Text style={styles.metricValue}>{result.ai_prediction}</Text>
         </View>
 
@@ -88,7 +88,7 @@ export function ResultCard({ result, feedbackSent, onFeedback }: Props) {
         </View>
       </View>
 
-      {result.important_keywords?.length > 0 && (
+      {result.scam_prediction === "SCAM" && result.important_keywords?.length > 0 && (
         <View style={styles.xaiPanel}>
           <Text style={styles.xaiTitle}>Explainable AI</Text>
           <Text style={styles.xaiSubtitle}>

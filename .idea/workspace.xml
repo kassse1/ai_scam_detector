@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="6a2df505-86b9-4623-af86-d5945c9ddbc5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile/scam-detector-mobile-new/src/components/Hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/scam-detector-mobile-new/src/components/Hero.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile/scam-detector-mobile-new/src/components/ResultCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/scam-detector-mobile-new/src/components/ResultCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile/scam-detector-mobile-new/src/styles/styles.ts" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/scam-detector-mobile-new/src/styles/styles.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -174,7 +178,7 @@
       <workItem from="1777559959443" duration="599000" />
       <workItem from="1777601534311" duration="3771000" />
       <workItem from="1777828341463" duration="2866000" />
-      <workItem from="1777905417054" duration="4830000" />
+      <workItem from="1777905417054" duration="8809000" />
     </task>
     <servers />
   </component>

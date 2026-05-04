@@ -9,7 +9,10 @@ export const styles = StyleSheet.create({
   container: {
     padding: 20,
     paddingBottom: 44,
-  },
+    width: "100%",
+    maxWidth: 520,
+    alignSelf: "center",
+ },
 
   hero: {
     marginTop: 36,
@@ -669,5 +672,129 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     fontSize: 12,
     fontWeight: "800",
+  },
+    heroGradient: {
+    marginTop: 36,
+    padding: 24,
+    borderRadius: 34,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(147,197,253,0.24)",
+  },
+
+  heroGlowBlue: {
+    position: "absolute",
+    width: 260,
+    height: 260,
+    borderRadius: 140,
+    backgroundColor: "#38bdf8",
+    opacity: 0.16,
+    right: -80,
+    top: -80,
+  },
+
+  heroGlowPurple: {
+    position: "absolute",
+    width: 230,
+    height: 230,
+    borderRadius: 120,
+    backgroundColor: "#a855f7",
+    opacity: 0.18,
+    left: -80,
+    bottom: -90,
+  },
+
+  logoBoxPremium: {
+    width: 74,
+    height: 74,
+    borderRadius: 26,
+    backgroundColor: "rgba(15,23,42,0.55)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(219,234,254,0.35)",
+  },
+
+  statusPillPremium: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(34,197,94,0.14)",
+    paddingVertical: 9,
+    paddingHorizontal: 13,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(134,239,172,0.28)",
+  },
+
+  statusTextPremium: {
+    color: "#dcfce7",
+    fontSize: 12,
+    fontWeight: "900",
+  },
+
+  heroIllustration: {
+    marginTop: 22,
+    height: 132,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  orbitCircleLarge: {
+    position: "absolute",
+    width: 132,
+    height: 132,
+    borderRadius: 66,
+    borderWidth: 1,
+    borderColor: "rgba(191,219,254,0.25)",
+  },
+
+  orbitCircleSmall: {
+    position: "absolute",
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    borderWidth: 1,
+    borderColor: "rgba(221,214,254,0.35)",
+  },
+
+  centerAiIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "rgba(37,99,235,0.85)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.28)",
+  },
+
+  titlePremium: {
+    color: "#f8fafc",
+    fontSize: 38,
+    fontWeight: "900",
+    letterSpacing: -1,
+    marginTop: 8,
+  },
+
+  subtitlePremium: {
+    color: "#cbd5e1",
+    fontSize: 15,
+    lineHeight: 23,
+    marginTop: 10,
+  },
+
+  heroStatPremium: {
+    flex: 1,
+    backgroundColor: "rgba(15,23,42,0.48)",
+    padding: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(203,213,225,0.22)",
+  },
+
+  heroStatLabelPremium: {
+    color: "#cbd5e1",
+    marginTop: 4,
+    fontSize: 12,
   },
 });
