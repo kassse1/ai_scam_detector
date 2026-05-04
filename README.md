@@ -130,8 +130,28 @@ ai_scam_detector/
 │
 ├── mobile/
 │   └── scam-detector-mobile-new/
-│       └── app/
-│           └── index.tsx
+│       ├── app/
+│       │   └── index.tsx
+│       │
+│       └── src/
+│           ├── components/
+│           │   ├── Hero.tsx
+│           │   ├── Tabs.tsx
+│           │   ├── ResultCard.tsx
+│           │   ├── DashboardView.tsx
+│           │   └── HistoryView.tsx
+│           │
+│           ├── config/
+│           │   └── api.ts
+│           │
+│           ├── data/
+│           │   └── examples.ts
+│           │
+│           ├── styles/
+│           │   └── styles.ts
+│           │
+│           └── types/
+│               └── api.ts
 │
 ├── research/
 │   ├── model_comparison.py
