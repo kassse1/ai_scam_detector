@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
 from transformers import pipeline
@@ -251,173 +251,217 @@ def health():
 
 @app.post("/analyze")
 def analyze(msg: Message):
-    reload_model_if_updated()
+    try:
+        reload_model_if_updated()
 
-    text = msg.text.strip()
+        text = msg.text.strip()
 
-    if not text:
-        return {
-            "error": "Text is empty"
+        if not text:
+            raise HTTPException(
+                status_code=400,
+                detail="Text field cannot be empty"
+            )
+
+        vec = scam_vectorizer.transform([text])
+        scam_prob = float(scam_model.predict_proba(vec)[0][1])
+
+        if scam_prob > 0.9:
+            scam_label = "SCAM"
+            confidence = scam_prob
+            source = "classical_ml"
+
+        elif scam_prob < 0.1:
+            scam_label = "SAFE"
+            confidence = 1 - scam_prob
+            source = "classical_ml"
+
+        else:
+            result = transformer(text)[0]
+            scam_label = "SCAM" if result["label"] == "LABEL_1" else "SAFE"
+            confidence = float(result["score"])
+            scam_prob = confidence if scam_label == "SCAM" else 1 - confidence
+            source = "transformer"
+
+        word_count = len(text.split())
+
+        if word_count < 12:
+            raw_ai_label = "SKIPPED_SHORT_TEXT"
+            ai_label = "NOT ENOUGH TEXT"
+            ai_prob = 0.0
+        else:
+            ai_result = ai_detector(text)[0]
+
+            raw_ai_label = ai_result["label"]
+            ai_prob = float(ai_result["score"])
+
+            print("AI RESULT:", ai_result)
+
+            if raw_ai_label in ["Real", "real", "HUMAN", "LABEL_0"]:
+                ai_label = "HUMAN"
+            elif raw_ai_label in ["Fake", "fake", "AI", "AI GENERATED", "LABEL_1"]:
+                ai_label = "AI GENERATED"
+            else:
+                ai_label = raw_ai_label
+
+        keywords = explain_text(text)
+        scam_category = detect_scam_category(text, scam_label)
+
+        response = {
+            "text": text,
+            "scam_prediction": scam_label,
+            "scam_probability": round(float(scam_prob), 3),
+            "confidence": round(float(confidence), 3),
+            "risk_level": get_risk_level(float(scam_prob)),
+            "scam_category": scam_category,
+            "important_keywords": keywords,
+            "ai_prediction": ai_label,
+            "ai_raw_label": raw_ai_label,
+            "ai_probability": round(ai_prob, 3),
+            "model_used": source
         }
 
-    vec = scam_vectorizer.transform([text])
-    scam_prob = float(scam_model.predict_proba(vec)[0][1])
+        save_history(response)
 
-    if scam_prob > 0.9:
-        scam_label = "SCAM"
-        confidence = scam_prob
-        source = "classical_ml"
+        return response
 
-    elif scam_prob < 0.1:
-        scam_label = "SAFE"
-        confidence = 1 - scam_prob
-        source = "classical_ml"
+    except HTTPException:
+        raise
 
-    else:
-        result = transformer(text)[0]
-        scam_label = "SCAM" if result["label"] == "LABEL_1" else "SAFE"
-        confidence = float(result["score"])
-        scam_prob = confidence if scam_label == "SCAM" else 1 - confidence
-        source = "transformer"
-
-    word_count = len(text.split())
-
-    if word_count < 12:
-        raw_ai_label = "SKIPPED_SHORT_TEXT"
-        ai_label = "NOT ENOUGH TEXT"
-        ai_prob = 0.0
-    else:
-        ai_result = ai_detector(text)[0]
-
-        raw_ai_label = ai_result["label"]
-        ai_prob = float(ai_result["score"])
-
-        print("AI RESULT:", ai_result)
-
-        if raw_ai_label in ["Real", "real", "HUMAN", "LABEL_0"]:
-            ai_label = "HUMAN"
-        elif raw_ai_label in ["Fake", "fake", "AI", "AI GENERATED", "LABEL_1"]:
-            ai_label = "AI GENERATED"
-        else:
-            ai_label = raw_ai_label
-
-    keywords = explain_text(text)
-
-    scam_category = detect_scam_category(text, scam_label)
-
-    response = {
-        "text": text,
-        "scam_prediction": scam_label,
-        "scam_probability": round(float(scam_prob), 3),
-        "confidence": round(float(confidence), 3),
-        "risk_level": get_risk_level(float(scam_prob)),
-        "scam_category": scam_category,
-        "important_keywords": keywords,
-        "ai_prediction": ai_label,
-        "ai_raw_label": raw_ai_label,
-        "ai_probability": round(ai_prob, 3),
-        "model_used": source
-    }
-
-    save_history(response)
-
-    return response
-
+    except Exception as e:
+        print("Analyze error:", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error during message analysis"
+        )
 
 @app.post("/feedback")
 def save_feedback(fb: Feedback):
-    label = fb.correct_label.upper().strip()
+    try:
+        text = fb.text.strip()
+        label = fb.correct_label.upper().strip()
 
-    if label not in ["SCAM", "SAFE"]:
-        return {
-            "error": "correct_label must be SCAM or SAFE"
+        if not text:
+            raise HTTPException(
+                status_code=400,
+                detail="Text field cannot be empty"
+            )
+
+        if label not in ["SCAM", "SAFE"]:
+            raise HTTPException(
+                status_code=400,
+                detail="correct_label must be either SCAM or SAFE"
+            )
+
+        data = {
+            "text": text,
+            "label": label
         }
 
-    data = {
-        "text": fb.text,
-        "label": label
-    }
+        FEEDBACK_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    FEEDBACK_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(FEEDBACK_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
-    with open(FEEDBACK_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(data, ensure_ascii=False) + "\n")
+        retrain_if_needed()
 
-    retrain_if_needed()
+        return {
+            "status": "saved",
+            "message": "Feedback saved successfully",
+            "saved_feedback": data
+        }
 
-    return {
-        "status": "saved",
-        "saved_feedback": data
-    }
+    except HTTPException:
+        raise
 
+    except Exception as e:
+        print("Feedback save error:", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while saving feedback"
+        )
 @app.get("/history")
 def get_history():
-    if not HISTORY_PATH.exists():
+    try:
+        if not HISTORY_PATH.exists():
+            return {
+                "history": []
+            }
+
+        records = []
+
+        with open(HISTORY_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    records.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+
         return {
-            "history": []
+            "history": records[-20:][::-1]
         }
 
-    records = []
-
-    with open(HISTORY_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            try:
-                records.append(json.loads(line))
-            except Exception:
-                pass
-
-    return {
-        "history": records[-20:][::-1]
-    }
-
+    except Exception as e:
+        print("History read error:", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while reading history"
+        )
 
 @app.get("/stats")
 def get_stats():
-    if not HISTORY_PATH.exists():
+    try:
+        if not HISTORY_PATH.exists():
+            return {
+                "total_checks": 0,
+                "scam_count": 0,
+                "safe_count": 0,
+                "high_risk_count": 0,
+                "categories": {},
+                "top_keywords": []
+            }
+
+        records = []
+
+        with open(HISTORY_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    records.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+
+        total = len(records)
+        scam_count = sum(1 for r in records if r.get("scam_prediction") == "SCAM")
+        safe_count = sum(1 for r in records if r.get("scam_prediction") == "SAFE")
+        high_risk_count = sum(1 for r in records if r.get("risk_level") == "HIGH")
+
+        categories = {}
+        keywords = {}
+
+        for r in records:
+            category = r.get("scam_category", "unknown")
+            categories[category] = categories.get(category, 0) + 1
+
+            for word in r.get("important_keywords", []):
+                keywords[word] = keywords.get(word, 0) + 1
+
+        top_keywords = sorted(
+            keywords.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:10]
+
         return {
-            "total_checks": 0,
-            "scam_count": 0,
-            "safe_count": 0,
-            "high_risk_count": 0,
-            "categories": {},
-            "top_keywords": []
+            "total_checks": total,
+            "scam_count": scam_count,
+            "safe_count": safe_count,
+            "high_risk_count": high_risk_count,
+            "categories": categories,
+            "top_keywords": top_keywords
         }
 
-    records = []
-
-    with open(HISTORY_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            try:
-                records.append(json.loads(line))
-            except Exception:
-                pass
-
-    total = len(records)
-    scam_count = sum(1 for r in records if r.get("scam_prediction") == "SCAM")
-    safe_count = sum(1 for r in records if r.get("scam_prediction") == "SAFE")
-    high_risk_count = sum(1 for r in records if r.get("risk_level") == "HIGH")
-
-    categories = {}
-    keywords = {}
-
-    for r in records:
-        category = r.get("scam_category", "unknown")
-        categories[category] = categories.get(category, 0) + 1
-
-        for word in r.get("important_keywords", []):
-            keywords[word] = keywords.get(word, 0) + 1
-
-    top_keywords = sorted(
-        keywords.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )[:10]
-
-    return {
-        "total_checks": total,
-        "scam_count": scam_count,
-        "safe_count": safe_count,
-        "high_risk_count": high_risk_count,
-        "categories": categories,
-        "top_keywords": top_keywords
-    }
+    except Exception as e:
+        print("Stats error:", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while calculating statistics"
+        )
