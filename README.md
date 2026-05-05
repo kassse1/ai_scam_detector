@@ -33,32 +33,20 @@ The system is designed to detect scam messages in multiple languages, explain th
 
 ```mermaid
 flowchart TD
-    A[Mobile App - Expo React Native] --> B[FastAPI Backend]
-
+    A[Mobile App] --> B[FastAPI Backend]
     B --> C[Hybrid Detection Engine]
-
-    C --> D[Classical ML Model<br/>TF-IDF + Logistic Regression]
-    C --> E[Transformer Model<br/>XLM-RoBERTa]
+    C --> D[Classical ML Model]
+    C --> E[Transformer Model]
     C --> F[AI Text Detector]
-
     D --> G[Prediction Result]
     E --> G
     F --> G
-
-    G --> H[Explainable AI Module]
-    H --> I[Important Keywords]
-
-    G --> J[Risk Level]
-    G --> K[Scam Category]
-
-    B --> L[History Storage]
-    B --> M[Statistics API]
-
-    A --> N[User Feedback]
-    N --> B
-    B --> O[Feedback Dataset]
-    O --> P[Retraining Script]
-    P --> D
+    G --> H[Risk Level and Explanation]
+    A --> I[User Feedback]
+    I --> B
+    B --> J[Feedback Dataset]
+    J --> K[Retraining Script]
+    K --> D
 ```
 
 ## Hybrid Detection Algorithm
