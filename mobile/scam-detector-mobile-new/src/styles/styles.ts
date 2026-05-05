@@ -797,4 +797,76 @@ export const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12,
   },
+  hybridPanel: {
+  marginTop: 16,
+  backgroundColor: "rgba(15,23,42,0.78)",
+  borderRadius: 24,
+  padding: 17,
+  borderWidth: 1,
+  borderColor: "rgba(148,163,184,0.25)",
+},
+
+scoreRow: {
+  marginTop: 12,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+},
+
+scoreRowLabel: {
+  color: "#cbd5e1",
+  fontSize: 13,
+  fontWeight: "800",
+},
+
+scoreRowValue: {
+  color: "#f8fafc",
+  fontSize: 13,
+  fontWeight: "900",
+},
+
+smallProgressTrack: {
+  marginTop: 7,
+  height: 8,
+  backgroundColor: "#1e293b",
+  borderRadius: 999,
+  overflow: "hidden",
+},
+
+smallProgressFill: {
+  height: "100%",
+  borderRadius: 999,
+  backgroundColor: "#60a5fa",
+},
+
+explanationPanel: {
+  marginTop: 16,
+  backgroundColor: "rgba(15,23,42,0.78)",
+  borderRadius: 24,
+  padding: 17,
+  borderWidth: 1,
+  borderColor: "rgba(148,163,184,0.25)",
+},
+
+explanationText: {
+  color: "#cbd5e1",
+  fontSize: 14,
+  lineHeight: 21,
+  marginTop: 6,
+},
+
+keywordChipDanger: {
+  backgroundColor: "rgba(239,68,68,0.2)",
+  borderColor: "rgba(248,113,113,0.45)",
+  borderWidth: 1,
+  borderRadius: 999,
+  paddingHorizontal: 12,
+  paddingVertical: 8,
+},
+
+keywordTextDanger: {
+  color: "#fecaca",
+  fontSize: 13,
+  fontWeight: "900",
+},
 });

@@ -20,11 +20,20 @@ const getRiskBg = (risk: string) => {
   return "#052e16";
 };
 
+const formatPercent = (value: number) => {
+  return `${(value * 100).toFixed(1)}%`;
+};
+
 export function ResultCard({ result, feedbackSent, onFeedback }: Props) {
   const isScam = result.scam_prediction === "SCAM";
   const probability = Math.round(result.scam_probability * 100);
   const riskColor = getRiskColor(result.risk_level);
   const riskBg = getRiskBg(result.risk_level);
+
+  const modelName =
+    result.model_used === "hybrid_ml_transformer"
+      ? "Hybrid AI"
+      : result.model_used;
 
   return (
     <View style={[styles.resultPanel, { backgroundColor: riskBg }]}>
@@ -49,6 +58,7 @@ export function ResultCard({ result, feedbackSent, onFeedback }: Props) {
 
         <View style={styles.scoreInfo}>
           <Text style={styles.scoreTitle}>Scam probability</Text>
+
           <View style={styles.progressTrack}>
             <View
               style={[
@@ -60,8 +70,9 @@ export function ResultCard({ result, feedbackSent, onFeedback }: Props) {
               ]}
             />
           </View>
+
           <Text style={styles.scoreDescription}>
-            Model confidence: {(result.confidence * 100).toFixed(1)}%
+            Model confidence: {formatPercent(result.confidence)}
           </Text>
         </View>
       </View>
@@ -84,21 +95,108 @@ export function ResultCard({ result, feedbackSent, onFeedback }: Props) {
 
         <View style={styles.metricCard}>
           <Text style={styles.metricLabel}>Model used</Text>
-          <Text style={styles.metricValue}>{result.model_used}</Text>
+          <Text style={styles.metricValue}>{modelName}</Text>
         </View>
       </View>
 
-      {result.scam_prediction === "SCAM" && result.important_keywords?.length > 0 && (
+      <View style={styles.hybridPanel}>
+        <Text style={styles.xaiTitle}>Hybrid AI Analysis</Text>
+        <Text style={styles.xaiSubtitle}>
+          Final decision is calculated from Classical ML and Transformer scores.
+        </Text>
+
+        <View style={styles.scoreRow}>
+          <Text style={styles.scoreRowLabel}>Classical ML</Text>
+          <Text style={styles.scoreRowValue}>
+            {formatPercent(result.classical_ml_score)}
+          </Text>
+        </View>
+
+        <View style={styles.smallProgressTrack}>
+          <View
+            style={[
+              styles.smallProgressFill,
+              {
+                width: `${Math.round(result.classical_ml_score * 100)}%`,
+              },
+            ]}
+          />
+        </View>
+
+        <View style={styles.scoreRow}>
+          <Text style={styles.scoreRowLabel}>Transformer</Text>
+          <Text style={styles.scoreRowValue}>
+            {formatPercent(result.transformer_score)}
+          </Text>
+        </View>
+
+        <View style={styles.smallProgressTrack}>
+          <View
+            style={[
+              styles.smallProgressFill,
+              {
+                width: `${Math.round(result.transformer_score * 100)}%`,
+              },
+            ]}
+          />
+        </View>
+
+        <View style={styles.scoreRow}>
+          <Text style={styles.scoreRowLabel}>Hybrid Score</Text>
+          <Text style={styles.scoreRowValue}>
+            {formatPercent(result.hybrid_score)}
+          </Text>
+        </View>
+
+        <View style={styles.smallProgressTrack}>
+          <View
+            style={[
+              styles.smallProgressFill,
+              {
+                width: `${Math.round(result.hybrid_score * 100)}%`,
+                backgroundColor: riskColor,
+              },
+            ]}
+          />
+        </View>
+      </View>
+
+      {result.explanation_text && (
+        <View style={styles.explanationPanel}>
+          <Text style={styles.xaiTitle}>Why this result?</Text>
+          <Text style={styles.explanationText}>{result.explanation_text}</Text>
+        </View>
+      )}
+
+      {result.scam_prediction === "SCAM" &&
+        result.important_keywords?.length > 0 && (
+          <View style={styles.xaiPanel}>
+            <Text style={styles.xaiTitle}>Model Keywords</Text>
+            <Text style={styles.xaiSubtitle}>
+  Important words extracted from model-based explanation.
+</Text>
+
+            <View style={styles.keywordWrap}>
+              {result.important_keywords.map((word, index) => (
+                <View key={index} style={styles.keywordChip}>
+                  <Text style={styles.keywordText}>#{word}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+      {result.suspicious_keywords?.length > 0 && (
         <View style={styles.xaiPanel}>
-          <Text style={styles.xaiTitle}>Explainable AI</Text>
+          <Text style={styles.xaiTitle}>Suspicious Indicators</Text>
           <Text style={styles.xaiSubtitle}>
-            Important words used by the system during prediction.
+            Scam-related words detected by rule-based explanation module.
           </Text>
 
           <View style={styles.keywordWrap}>
-            {result.important_keywords.map((word, index) => (
-              <View key={index} style={styles.keywordChip}>
-                <Text style={styles.keywordText}>#{word}</Text>
+            {result.suspicious_keywords.map((word, index) => (
+              <View key={index} style={styles.keywordChipDanger}>
+                <Text style={styles.keywordTextDanger}>#{word}</Text>
               </View>
             ))}
           </View>
