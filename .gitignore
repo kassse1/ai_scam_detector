@@ -3,6 +3,10 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.idea/
+
+# mac
+.DS_Store
 
 # Virtual environment
 venv/
