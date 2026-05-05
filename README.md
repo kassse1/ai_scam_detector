@@ -25,6 +25,9 @@ The system is designed to detect scam messages in multiple languages, explain th
 - System statistics dashboard
 - Expo mobile application
 - Multilingual testing: English, Russian and Kazakh
+- Hybrid scoring with Classical ML and Transformer scores
+- Explanation text for detection results
+- Suspicious indicator extraction
 
 ## System Architecture
 
@@ -196,6 +199,11 @@ The backend is built with FastAPI.
   "ai_prediction": "AI GENERATED",
   "ai_probability": 0.747,
   "model_used": "classical_ml"
+  "classical_ml_score": 0.925,
+  "transformer_score": 1.0,
+  "hybrid_score": 0.955,
+  "suspicious_keywords": ["password", "verify", "account"],
+  "explanation_text": "This message was classified as phishing..."
 }
 ```
 
