@@ -15,19 +15,23 @@ The system is designed to detect scam messages in multiple languages, explain th
 - Hybrid scam detection system
 - Classical ML model using TF-IDF + Logistic Regression
 - Transformer-based text classification model
-- AI-generated text detection
+- Hybrid scoring using Classical ML and Transformer scores
+- AI-generated text auxiliary detection
 - Explainable AI with important keywords
+- Explanation text for detection results
+- Suspicious indicator extraction
 - Scam probability and risk level
 - Scam category detection
+- Batch message analysis
+- Model information endpoint
+- Pydantic request and response schemas
 - User feedback collection
 - Retraining mechanism
 - History of analyzed messages
 - System statistics dashboard
-- Expo mobile application
+- Component-based Expo mobile application
+- Mobile dashboard with model information
 - Multilingual testing: English, Russian and Kazakh
-- Hybrid scoring with Classical ML and Transformer scores
-- Explanation text for detection results
-- Suspicious indicator extraction
 
 ## System Architecture
 
@@ -61,34 +65,23 @@ flowchart TD
     P --> D
 ```
 
-## Hybrid Detection Algorithm
+## Hybrid Scoring
 
-The system uses a hybrid detection approach.
-
-First, the classical machine learning model analyzes the input message using TF-IDF features and Logistic Regression.
-
-If the prediction confidence is high, the system returns the classical model result immediately.
-
-If the confidence is uncertain, the message is passed to the transformer-based model for deeper semantic analysis.
-
-This approach provides a balance between speed and accuracy.
+The final scam probability is calculated using a weighted hybrid score:
 
 ```text
-Input Message
-     ↓
-TF-IDF + Logistic Regression
-     ↓
-If confidence is high:
-     → return prediction
-Else:
-     → use Transformer model
-     ↓
-AI text detector
-     ↓
-Explainability + Risk Level + Category
-     ↓
-Final Result
+hybrid_score = 0.6 * classical_ml_score + 0.4 * transformer_score
 ```
+
+The classical ML model provides fast and efficient text classification, while the transformer model improves semantic understanding. The final decision is based on the combined hybrid score.
+
+The API response includes:
+
+- `classical_ml_score`
+- `transformer_score`
+- `hybrid_score`
+- `explanation_text`
+- `suspicious_keywords`
 
 ## Project Structure
 
@@ -180,7 +173,9 @@ The backend is built with FastAPI.
 |---|---|---|
 | GET | `/` | API status |
 | GET | `/health` | Health check |
-| POST | `/analyze` | Analyze message |
+| GET | `/models/info` | Get information about loaded models and hybrid formula |
+| POST | `/analyze` | Analyze a single message |
+| POST | `/analyze/batch` | Analyze multiple messages in one request |
 | POST | `/feedback` | Save user feedback |
 | GET | `/history` | Get recent analyzed messages |
 | GET | `/stats` | Get system statistics |
@@ -191,20 +186,36 @@ The backend is built with FastAPI.
 {
   "text": "Your bank account is blocked. Verify your password now.",
   "scam_prediction": "SCAM",
-  "scam_probability": 0.925,
-  "confidence": 0.925,
+  "scam_probability": 0.955,
+  "confidence": 0.955,
   "risk_level": "HIGH",
   "scam_category": "phishing",
-  "important_keywords": ["bank", "account", "password"],
-  "ai_prediction": "AI GENERATED",
-  "ai_probability": 0.747,
-  "model_used": "classical_ml"
   "classical_ml_score": 0.925,
   "transformer_score": 1.0,
   "hybrid_score": 0.955,
-  "suspicious_keywords": ["password", "verify", "account"],
-  "explanation_text": "This message was classified as phishing..."
+  "important_keywords": ["password", "verify", "account", "blocked", "bank"],
+  "suspicious_keywords": ["password", "verify", "account", "blocked", "bank"],
+  "explanation_text": "This message was classified as phishing because it contains account, password, verification or blocking-related indicators.",
+  "ai_prediction": "NOT ENOUGH TEXT",
+  "ai_raw_label": "SKIPPED_SHORT_TEXT",
+  "ai_probability": 0.0,
+  "model_used": "hybrid_ml_transformer"
 }
+```
+
+## Batch Analysis Example
+
+```bash
+curl -X POST http://127.0.0.1:8000/analyze/batch \
+-H "Content-Type: application/json" \
+-d '{
+  "messages": [
+    "Your bank account is blocked. Verify your password now.",
+    "Hi, can we meet tomorrow?",
+    "Срочно подтвердите данные карты иначе аккаунт будет заблокирован"
+  ],
+  "save_to_history": true
+}'
 ```
 
 ## Scam Categories
@@ -273,16 +284,27 @@ Metrics used:
 
 ## Mobile Application
 
-The mobile application is built with Expo React Native.
+The mobile application uses a component-based structure:
+
+- `Hero.tsx`
+- `Tabs.tsx`
+- `ResultCard.tsx`
+- `DashboardView.tsx`
+- `HistoryView.tsx`
 
 The app provides:
 
-- message input
+- single message analysis
+- batch message analysis
 - scam detection result
+- hybrid score visualization
 - risk level
 - scam probability
 - scam category
+- model information dashboard
 - important keywords
+- suspicious indicators
+- explanation text
 - system statistics
 - history of checks
 - feedback buttons
