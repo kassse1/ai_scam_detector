@@ -1,62 +1,63 @@
-import { View, Text } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Text, View } from "react-native";
 import { styles } from "../styles/styles";
 
 export function Hero() {
   return (
     <LinearGradient
-      colors={["#172554", "#312e81", "#0f172a"]}
+      colors={["#1e1b4b", "#312e81", "#0f172a", "#020617"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.heroGradient}
+      style={styles.newHero}
     >
-      <View style={styles.heroGlowBlue} />
-      <View style={styles.heroGlowPurple} />
+      <View style={styles.newHeroGlowBlue} />
+      <View style={styles.newHeroGlowPink} />
 
-      <View style={styles.topRow}>
-        <View style={styles.logoBoxPremium}>
-          <Ionicons name="shield-checkmark" size={42} color="#dbeafe" />
+      <View style={styles.newHeroTop}>
+        <View style={styles.newHeroLogo}>
+          <Ionicons name="shield-checkmark" size={42} color="#ffffff" />
         </View>
 
-        <View style={styles.statusPillPremium}>
+        <View style={styles.newHeroBadge}>
           <View style={styles.statusDot} />
-          <Text style={styles.statusTextPremium}>AI System Online</Text>
+          <Text style={styles.newHeroBadgeText}>AI ONLINE</Text>
         </View>
       </View>
 
-      <View style={styles.heroIllustration}>
-        <View style={styles.orbitCircleLarge} />
-        <View style={styles.orbitCircleSmall} />
-        <View style={styles.centerAiIcon}>
-          <Ionicons name="sparkles" size={34} color="#ffffff" />
-        </View>
+      <View style={styles.newHeroCenter}>
+        <LinearGradient
+          colors={["#2563eb", "#7c3aed", "#ec4899"]}
+          style={styles.newHeroAiCircle}
+        >
+          <Ionicons name="sparkles" size={38} color="#ffffff" />
+        </LinearGradient>
       </View>
 
-      <Text style={styles.titlePremium}>AI Scam Detector</Text>
+      <Text style={styles.newHeroTitle}>AI Scam Detector</Text>
 
-      <Text style={styles.subtitlePremium}>
-        Hybrid AI system for scam detection, explainability, feedback and
-        multilingual analysis.
+      <Text style={styles.newHeroSubtitle}>
+        Hybrid AI system for scam detection, explainability and multilingual
+        fraud analysis.
       </Text>
 
-      <View style={styles.heroStats}>
-        <View style={styles.heroStatPremium}>
-          <Ionicons name="flash" size={18} color="#93c5fd" />
-          <Text style={styles.heroStatValue}>ML</Text>
-          <Text style={styles.heroStatLabelPremium}>Fast model</Text>
+      <View style={styles.newHeroCards}>
+        <View style={styles.newHeroCard}>
+          <Ionicons name="flash" size={20} color="#60a5fa" />
+          <Text style={styles.newHeroCardTitle}>ML</Text>
+          <Text style={styles.newHeroCardText}>Fast scan</Text>
         </View>
 
-        <View style={styles.heroStatPremium}>
-          <Ionicons name="hardware-chip" size={18} color="#c4b5fd" />
-          <Text style={styles.heroStatValue}>XLM-R</Text>
-          <Text style={styles.heroStatLabelPremium}>Transformer</Text>
+        <View style={styles.newHeroCard}>
+          <Ionicons name="hardware-chip" size={20} color="#c084fc" />
+          <Text style={styles.newHeroCardTitle}>XLM-R</Text>
+          <Text style={styles.newHeroCardText}>Deep AI</Text>
         </View>
 
-        <View style={styles.heroStatPremium}>
-          <Ionicons name="bulb" size={18} color="#fde68a" />
-          <Text style={styles.heroStatValue}>XAI</Text>
-          <Text style={styles.heroStatLabelPremium}>Explainable</Text>
+        <View style={styles.newHeroCard}>
+          <Ionicons name="bulb" size={20} color="#facc15" />
+          <Text style={styles.newHeroCardTitle}>XAI</Text>
+          <Text style={styles.newHeroCardText}>Explain</Text>
         </View>
       </View>
     </LinearGradient>

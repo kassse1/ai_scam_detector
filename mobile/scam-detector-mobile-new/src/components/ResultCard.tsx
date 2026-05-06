@@ -1,4 +1,6 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Text, TouchableOpacity, View } from "react-native";
 import { styles } from "../styles/styles";
 import type { AnalyzeResult } from "../types/api";
 
@@ -36,11 +38,26 @@ export function ResultCard({ result, feedbackSent, onFeedback }: Props) {
       : result.model_used;
 
   return (
-    <View style={[styles.resultPanel, { backgroundColor: riskBg }]}>
+    <LinearGradient
+    colors={
+      isScam
+        ? ["#450a0a", "#7f1d1d", "#0f172a"]
+        : ["#052e16", "#14532d", "#0f172a"]
+    }
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.resultPanelPremium}
+  >
       <View style={styles.resultTop}>
         <View>
-          <Text style={styles.resultSmallText}>Detection result</Text>
-          <Text style={styles.resultTitle}>
+<View style={styles.resultLabelRow}>
+  <Ionicons
+    name={isScam ? "warning" : "shield-checkmark"}
+    size={16}
+    color={isScam ? "#fecaca" : "#bbf7d0"}
+  />
+  <Text style={styles.resultSmallText}>Detection result</Text>
+</View>          <Text style={styles.resultTitle}>
             {isScam ? "Scam Detected" : "Safe Message"}
           </Text>
         </View>
@@ -228,6 +245,6 @@ export function ResultCard({ result, feedbackSent, onFeedback }: Props) {
           <Text style={styles.feedbackMessage}>{feedbackSent}</Text>
         ) : null}
       </View>
-    </View>
+</LinearGradient>
   );
 }

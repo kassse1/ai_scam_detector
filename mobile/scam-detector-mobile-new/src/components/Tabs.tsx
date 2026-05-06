@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { Text, TouchableOpacity, View } from "react-native";
 import { styles } from "../styles/styles";
 import type { TabName } from "../types/api";
@@ -14,68 +15,44 @@ const tabs: {
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
 }[] = [
-  {
-    key: "analyze",
-    label: "Analyze",
-    icon: "scan",
-  },
-  {
-    key: "dashboard",
-    label: "Dashboard",
-    icon: "stats-chart",
-  },
-  {
-    key: "history",
-    label: "History",
-    icon: "time",
-  },
+  { key: "analyze", label: "Analyze", icon: "scan" },
+  { key: "dashboard", label: "Dashboard", icon: "stats-chart" },
+  { key: "history", label: "History", icon: "time" },
 ];
 
 export function Tabs({ activeTab, setActiveTab, onRefresh }: Props) {
   const openTab = (tab: TabName) => {
     setActiveTab(tab);
-    if (tab !== "analyze") {
-      onRefresh();
-    }
+    if (tab !== "analyze") onRefresh();
   };
 
   return (
     <View style={styles.bottomNavWrapper}>
-      <View style={styles.bottomNav}>
+      <View style={styles.bottomNavPremium}>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
 
           return (
             <TouchableOpacity
               key={tab.key}
-              style={[
-                styles.bottomNavItem,
-                isActive && styles.bottomNavItemActive,
-              ]}
+              style={styles.bottomNavItemPremium}
               onPress={() => openTab(tab.key)}
-              activeOpacity={0.8}
+              activeOpacity={0.85}
             >
-              <View
-                style={[
-                  styles.bottomNavIconBox,
-                  isActive && styles.bottomNavIconBoxActive,
-                ]}
-              >
-                <Ionicons
-                  name={tab.icon}
-                  size={20}
-                  color={isActive ? "#ffffff" : "#94a3b8"}
-                />
-              </View>
-
-              <Text
-                style={[
-                  styles.bottomNavText,
-                  isActive && styles.bottomNavTextActive,
-                ]}
-              >
-                {tab.label}
-              </Text>
+              {isActive ? (
+                <LinearGradient
+                  colors={["#2563eb", "#7c3aed"]}
+                  style={styles.bottomNavActiveBg}
+                >
+                  <Ionicons name={tab.icon} size={20} color="#ffffff" />
+                  <Text style={styles.bottomNavTextActive}>{tab.label}</Text>
+                </LinearGradient>
+              ) : (
+                <>
+                  <Ionicons name={tab.icon} size={20} color="#94a3b8" />
+                  <Text style={styles.bottomNavTextPremium}>{tab.label}</Text>
+                </>
+              )}
             </TouchableOpacity>
           );
         })}
