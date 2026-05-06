@@ -30,3 +30,12 @@ export type Stats = {
   categories: Record<string, number>;
   top_keywords: [string, number][];
 };
+export type ModelInfo = {
+  project_name: string;
+  backend_framework: string;
+  classical_model: string;
+  transformer_model: string;
+  ai_detector: string;
+  hybrid_formula: string;
+  supported_features: string[];
+};

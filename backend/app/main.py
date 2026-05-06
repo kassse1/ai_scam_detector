@@ -8,6 +8,14 @@ import os
 import subprocess
 import pandas as pd
 from pathlib import Path
+from .schemas import (
+    Message,
+    Feedback,
+    BatchAnalyzeRequest,
+    AnalyzeResponse,
+    BatchAnalyzeResponse,
+    ModelInfoResponse,
+)
 
 
 # ===== PATHS =====
@@ -99,16 +107,6 @@ transformer = pipeline(
 )
 
 last_loaded = os.path.getmtime(SCAM_MODEL_PATH)
-
-
-# ===== SCHEMAS =====
-class Message(BaseModel):
-    text: str
-
-
-class Feedback(BaseModel):
-    text: str
-    correct_label: str  # SCAM / SAFE
 
 
 # ===== HELPERS =====
@@ -360,7 +358,73 @@ def analyze_generated_text(text: str):
 
     return ai_label, raw_ai_label, ai_prob
 
+def analyze_text(text: str, save_to_history: bool = True) -> dict:
+    reload_model_if_updated()
 
+    text = text.strip()
+
+    if not text:
+        raise HTTPException(
+            status_code=400,
+            detail="Text field cannot be empty"
+        )
+
+    # ===== HYBRID SCORING =====
+    vec = scam_vectorizer.transform([text])
+    classical_score = float(scam_model.predict_proba(vec)[0][1])
+
+    transformer_score = get_transformer_scam_score(text)
+
+    hybrid_score = (0.6 * classical_score) + (0.4 * transformer_score)
+
+    scam_prob = hybrid_score
+    scam_label = "SCAM" if hybrid_score >= 0.5 else "SAFE"
+    confidence = hybrid_score if scam_label == "SCAM" else 1 - hybrid_score
+    source = "hybrid_ml_transformer"
+
+    # ===== CATEGORY + EXPLAINABILITY =====
+    keywords, suspicious_keywords = explain_text(text)
+    scam_category = detect_scam_category(text, scam_label)
+
+    if scam_label == "SAFE" and not suspicious_keywords:
+        keywords = []
+
+    explanation_text = build_explanation_text(
+        scam_label=scam_label,
+        scam_category=scam_category,
+        suspicious_keywords=suspicious_keywords,
+        hybrid_score=hybrid_score
+    )
+
+    # ===== AI-GENERATED TEXT CHECK =====
+    ai_label, raw_ai_label, ai_prob = analyze_generated_text(text)
+
+    response = {
+        "text": text,
+        "scam_prediction": scam_label,
+        "scam_probability": round(float(scam_prob), 3),
+        "confidence": round(float(confidence), 3),
+        "risk_level": get_risk_level(float(scam_prob)),
+        "scam_category": scam_category,
+
+        "classical_ml_score": round(float(classical_score), 3),
+        "transformer_score": round(float(transformer_score), 3),
+        "hybrid_score": round(float(hybrid_score), 3),
+
+        "important_keywords": keywords,
+        "suspicious_keywords": suspicious_keywords,
+        "explanation_text": explanation_text,
+
+        "ai_prediction": ai_label,
+        "ai_raw_label": raw_ai_label,
+        "ai_probability": round(ai_prob, 3),
+        "model_used": source
+    }
+
+    if save_to_history:
+        save_history(response)
+
+    return response
 # ===== ROUTES =====
 @app.get("/")
 def root():
@@ -380,72 +444,34 @@ def health():
         "ai_detector_loaded": ai_detector is not None
     }
 
+@app.get("/models/info", response_model=ModelInfoResponse)
+def models_info():
+    return {
+        "project_name": "AI Scam Detector",
+        "backend_framework": "FastAPI",
+        "classical_model": "TF-IDF + Logistic Regression",
+        "transformer_model": "XLM-RoBERTa based text classification model",
+        "ai_detector": "roberta-base-openai-detector",
+        "hybrid_formula": "hybrid_score = 0.6 * classical_ml_score + 0.4 * transformer_score",
+        "supported_features": [
+            "single message scam analysis",
+            "batch message analysis",
+            "hybrid ML + Transformer scoring",
+            "scam category detection",
+            "explainable AI keywords",
+            "suspicious indicator extraction",
+            "AI-generated text auxiliary check",
+            "feedback collection",
+            "history logging",
+            "statistics dashboard",
+            "model retraining trigger"
+        ]
+    }
 
-@app.post("/analyze")
+@app.post("/analyze", response_model=AnalyzeResponse)
 def analyze(msg: Message):
     try:
-        reload_model_if_updated()
-
-        text = msg.text.strip()
-
-        if not text:
-            raise HTTPException(
-                status_code=400,
-                detail="Text field cannot be empty"
-            )
-
-        # ===== HYBRID SCORING =====
-        vec = scam_vectorizer.transform([text])
-        classical_score = float(scam_model.predict_proba(vec)[0][1])
-
-        transformer_score = get_transformer_scam_score(text)
-
-        hybrid_score = (0.6 * classical_score) + (0.4 * transformer_score)
-
-        scam_prob = hybrid_score
-        scam_label = "SCAM" if hybrid_score >= 0.5 else "SAFE"
-        confidence = hybrid_score if scam_label == "SCAM" else 1 - hybrid_score
-        source = "hybrid_ml_transformer"
-
-        # ===== CATEGORY + EXPLAINABILITY =====
-        keywords, suspicious_keywords = explain_text(text)
-        scam_category = detect_scam_category(text, scam_label)
-
-        explanation_text = build_explanation_text(
-            scam_label=scam_label,
-            scam_category=scam_category,
-            suspicious_keywords=suspicious_keywords,
-            hybrid_score=hybrid_score
-        )
-
-        # ===== AI-GENERATED TEXT CHECK =====
-        ai_label, raw_ai_label, ai_prob = analyze_generated_text(text)
-
-        response = {
-            "text": text,
-            "scam_prediction": scam_label,
-            "scam_probability": round(float(scam_prob), 3),
-            "confidence": round(float(confidence), 3),
-            "risk_level": get_risk_level(float(scam_prob)),
-            "scam_category": scam_category,
-
-            "classical_ml_score": round(float(classical_score), 3),
-            "transformer_score": round(float(transformer_score), 3),
-            "hybrid_score": round(float(hybrid_score), 3),
-
-            "important_keywords": keywords,
-            "suspicious_keywords": suspicious_keywords,
-            "explanation_text": explanation_text,
-
-            "ai_prediction": ai_label,
-            "ai_raw_label": raw_ai_label,
-            "ai_probability": round(ai_prob, 3),
-            "model_used": source
-        }
-
-        save_history(response)
-
-        return response
+        return analyze_text(msg.text, save_to_history=True)
 
     except HTTPException:
         raise
@@ -457,6 +483,40 @@ def analyze(msg: Message):
             detail="Internal server error during message analysis"
         )
 
+@app.post("/analyze/batch", response_model=BatchAnalyzeResponse)
+def analyze_batch(batch: BatchAnalyzeRequest):
+    try:
+        clean_messages = [
+            message.strip()
+            for message in batch.messages
+            if message.strip()
+        ]
+
+        if not clean_messages:
+            raise HTTPException(
+                status_code=400,
+                detail="Batch must contain at least one non-empty message"
+            )
+
+        results = [
+            analyze_text(message, save_to_history=batch.save_to_history)
+            for message in clean_messages
+        ]
+
+        return {
+            "count": len(results),
+            "results": results
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        print("Batch analyze error:", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error during batch analysis"
+        )
 
 @app.post("/feedback")
 def save_feedback(fb: Feedback):

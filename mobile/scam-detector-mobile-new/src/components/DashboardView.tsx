@@ -1,14 +1,15 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "../styles/styles";
-import type { Stats } from "../types/api";
+import type { ModelInfo, Stats } from "../types/api";
 
 type Props = {
   stats: Stats | null;
+  modelInfo: ModelInfo | null;
   refreshing: boolean;
   onRefresh: () => void;
 };
 
-export function DashboardView({ stats, refreshing, onRefresh }: Props) {
+export function DashboardView({ stats, modelInfo, refreshing, onRefresh }: Props) {
   const categories = stats?.categories || {};
   const topKeywords = stats?.top_keywords || [];
 
@@ -54,6 +55,31 @@ export function DashboardView({ stats, refreshing, onRefresh }: Props) {
       </View>
 
       <View style={styles.dashboardPanel}>
+        {modelInfo && (
+  <View style={styles.dashboardPanel}>
+    <Text style={styles.sectionTitle}>AI Model Information</Text>
+
+    <View style={styles.modelInfoCard}>
+      <Text style={styles.modelInfoLabel}>Classical Model</Text>
+      <Text style={styles.modelInfoValue}>{modelInfo.classical_model}</Text>
+    </View>
+
+    <View style={styles.modelInfoCard}>
+      <Text style={styles.modelInfoLabel}>Transformer Model</Text>
+      <Text style={styles.modelInfoValue}>{modelInfo.transformer_model}</Text>
+    </View>
+
+    <View style={styles.modelInfoCard}>
+      <Text style={styles.modelInfoLabel}>AI Text Detector</Text>
+      <Text style={styles.modelInfoValue}>{modelInfo.ai_detector}</Text>
+    </View>
+
+    <View style={styles.formulaBox}>
+      <Text style={styles.formulaTitle}>Hybrid Formula</Text>
+      <Text style={styles.formulaText}>{modelInfo.hybrid_formula}</Text>
+    </View>
+  </View>
+)}
         <Text style={styles.sectionTitle}>Scam Categories</Text>
 
         {Object.keys(categories).length === 0 ? (

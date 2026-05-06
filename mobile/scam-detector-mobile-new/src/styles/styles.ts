@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
 
   container: {
     padding: 20,
-    paddingBottom: 44,
+    paddingBottom: 120,
     width: "100%",
     maxWidth: 520,
     alignSelf: "center",
@@ -868,5 +868,194 @@ keywordTextDanger: {
   color: "#fecaca",
   fontSize: 13,
   fontWeight: "900",
+},
+appShell: {
+  flex: 1,
+},
+
+bottomNavWrapper: {
+  paddingHorizontal: 20,
+  paddingBottom: 18,
+  paddingTop: 8,
+  backgroundColor: "#020617",
+},
+
+bottomNav: {
+  flexDirection: "row",
+  backgroundColor: "rgba(15,23,42,0.96)",
+  borderRadius: 28,
+  padding: 8,
+  borderWidth: 1,
+  borderColor: "rgba(148,163,184,0.22)",
+},
+
+bottomNavItem: {
+  flex: 1,
+  alignItems: "center",
+  justifyContent: "center",
+  paddingVertical: 8,
+  borderRadius: 22,
+},
+
+bottomNavItemActive: {
+  backgroundColor: "#2563eb",
+},
+
+bottomNavIconBox: {
+  width: 34,
+  height: 34,
+  borderRadius: 17,
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: 4,
+},
+
+bottomNavIconBoxActive: {
+  backgroundColor: "rgba(255,255,255,0.16)",
+},
+
+bottomNavText: {
+  color: "#94a3b8",
+  fontSize: 11,
+  fontWeight: "900",
+},
+
+bottomNavTextActive: {
+  color: "#ffffff",
+},
+modelInfoCard: {
+  backgroundColor: "#1e293b",
+  borderRadius: 18,
+  padding: 14,
+  borderWidth: 1,
+  borderColor: "#334155",
+  marginTop: 10,
+},
+
+modelInfoLabel: {
+  color: "#94a3b8",
+  fontSize: 12,
+  fontWeight: "800",
+  marginBottom: 5,
+},
+
+modelInfoValue: {
+  color: "#f8fafc",
+  fontSize: 14,
+  fontWeight: "900",
+  lineHeight: 20,
+},
+
+formulaBox: {
+  marginTop: 14,
+  backgroundColor: "rgba(37,99,235,0.16)",
+  borderRadius: 18,
+  padding: 14,
+  borderWidth: 1,
+  borderColor: "rgba(96,165,250,0.35)",
+},
+
+formulaTitle: {
+  color: "#bfdbfe",
+  fontSize: 13,
+  fontWeight: "900",
+  marginBottom: 6,
+},
+
+formulaText: {
+  color: "#dbeafe",
+  fontSize: 13,
+  fontWeight: "800",
+  lineHeight: 20,
+},
+modeSwitch: {
+  flexDirection: "row",
+  backgroundColor: "#020617",
+  borderRadius: 18,
+  padding: 5,
+  borderWidth: 1,
+  borderColor: "#334155",
+  marginBottom: 14,
+},
+
+modeButton: {
+  flex: 1,
+  paddingVertical: 11,
+  borderRadius: 14,
+  alignItems: "center",
+},
+
+modeButtonActive: {
+  backgroundColor: "#2563eb",
+},
+
+modeButtonText: {
+  color: "#94a3b8",
+  fontSize: 13,
+  fontWeight: "900",
+},
+
+modeButtonTextActive: {
+  color: "#ffffff",
+},
+
+batchInput: {
+  minHeight: 210,
+  backgroundColor: "#020617",
+  borderRadius: 24,
+  padding: 16,
+  color: "#f8fafc",
+  borderWidth: 1,
+  borderColor: "#334155",
+  fontSize: 15,
+  textAlignVertical: "top",
+},
+
+batchResultsPanel: {
+  marginTop: 20,
+  backgroundColor: "#0f172a",
+  borderRadius: 30,
+  padding: 20,
+  borderWidth: 1,
+  borderColor: "#1e293b",
+},
+
+batchResultItem: {
+  marginTop: 12,
+  backgroundColor: "#1e293b",
+  borderRadius: 20,
+  padding: 14,
+  borderWidth: 1,
+  borderColor: "#334155",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  gap: 12,
+},
+
+batchResultTitle: {
+  color: "#f8fafc",
+  fontWeight: "900",
+  fontSize: 14,
+},
+
+batchResultCategory: {
+  color: "#93c5fd",
+  fontSize: 12,
+  fontWeight: "800",
+  marginTop: 4,
+},
+
+batchResultText: {
+  color: "#94a3b8",
+  fontSize: 12,
+  marginTop: 5,
+  lineHeight: 17,
+  maxWidth: 280,
+},
+
+batchResultPercent: {
+  color: "#60a5fa",
+  fontWeight: "900",
+  fontSize: 16,
 },
 });
